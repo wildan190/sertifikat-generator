@@ -296,9 +296,12 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
     doc.restore()
   }
 
+  const fullContentW = PAGE_W - 2 * 90   // 662 (content area dari x=90 sampai x=752)
+  const contentX = 90
+
   const bodyText = interpolate(template.body, recipient, template)
   const bodyFontSize = 13
-  const bodyWidth = 662
+  const bodyWidth = fullContentW
   const bodyLineGap = 6
 
   doc.font('Helvetica').fontSize(bodyFontSize)
@@ -317,14 +320,14 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
   doc.fillColor(accentColor)
     .fontSize(12)
     .font('Helvetica-Bold')
-    .text(template.organization.toUpperCase(), 160, currentY, { align: 'center', width: 522, characterSpacing: 2, lineBreak: false })
+    .text(template.organization.toUpperCase(), contentX, currentY, { align: 'center', width: fullContentW, characterSpacing: 2 })
 
   currentY += 30
 
   doc.fillColor('#172327')
     .fontSize(36)
     .font('Times-Bold')
-    .text(template.title, 60, currentY, { align: 'center', lineBreak: false })
+    .text(template.title, contentX, currentY, { align: 'center', width: fullContentW })
 
   currentY += 50
 
@@ -332,7 +335,7 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
     doc.fillColor('#4b5563')
       .fontSize(13)
       .font('Helvetica-Oblique')
-      .text(template.subtitle.trim(), 60, currentY, { align: 'center', lineBreak: false })
+      .text(template.subtitle.trim(), contentX, currentY, { align: 'center', width: fullContentW })
     currentY += 30
   }
 
@@ -340,27 +343,29 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
   doc.fillColor('#606f7b')
     .fontSize(10.5)
     .font('Helvetica-Bold')
-    .text(typeText, 60, currentY, { align: 'center', characterSpacing: 2.5, lineBreak: false })
+    .text(typeText, contentX, currentY, { align: 'center', width: fullContentW, characterSpacing: 2.5 })
 
   currentY += 34
 
   doc.fillColor('#4b5563')
     .fontSize(12.5)
     .font('Helvetica')
-    .text('Diberikan dengan penuh kehormatan kepada', 60, currentY, { align: 'center', lineBreak: false })
+    .text('Diberikan dengan penuh kehormatan kepada', contentX, currentY, { align: 'center', width: fullContentW })
 
   currentY += 32
 
   doc.fillColor(accentColor)
     .fontSize(36)
     .font('Times-BoldItalic')
-    .text(name, 50, currentY, { align: 'center', lineBreak: false })
+    .text(name, contentX, currentY, { align: 'center', width: fullContentW })
 
   currentY += 54
 
-  doc.moveTo(210, currentY).lineTo(390, currentY).lineWidth(1.2).strokeColor('#d7c28a').stroke()
-  doc.polygon([421, currentY - 4.5], [427, currentY], [421, currentY + 4.5], [415, currentY]).fillColor(accentColor).fill()
-  doc.moveTo(452, currentY).lineTo(632, currentY).lineWidth(1.2).strokeColor('#d7c28a').stroke()
+  const dividerW = 180
+  const centerX = PAGE_W / 2
+  doc.moveTo(centerX - dividerW - 11, currentY).lineTo(centerX - 11, currentY).lineWidth(1.2).strokeColor('#d7c28a').stroke()
+  doc.polygon([centerX, currentY - 4.5], [centerX + 6, currentY], [centerX, currentY + 4.5], [centerX - 6, currentY]).fillColor(accentColor).fill()
+  doc.moveTo(centerX + 11, currentY).lineTo(centerX + dividerW + 11, currentY).lineWidth(1.2).strokeColor('#d7c28a').stroke()
 
   currentY += 26
 
@@ -371,9 +376,9 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
   doc.fillColor('#334155')
     .fontSize(bodyFontSize)
     .font('Helvetica')
-    .text(bodyText, 90, bodyStartY, {
+    .text(bodyText, contentX, bodyStartY, {
       align: 'center',
-      width: bodyWidth,
+      width: fullContentW,
       lineGap: bodyLineGap
     })
 
@@ -387,11 +392,11 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
     doc.fillColor('#64748b')
       .fontSize(8.5)
       .font('Helvetica-Bold')
-      .text('NO. SERTIFIKAT', 280, sealCY + 36, { width: 282, align: 'center', characterSpacing: 1.5, lineBreak: false })
+      .text('NO. SERTIFIKAT', 280, sealCY + 36, { width: 282, align: 'center', characterSpacing: 1.5 })
     doc.fillColor('#1e293b')
       .fontSize(10)
       .font('Helvetica')
-      .text(certNumber, 280, sealCY + 50, { width: 282, align: 'center', characterSpacing: 1.2, lineBreak: false })
+      .text(certNumber, 280, sealCY + 50, { width: 282, align: 'center', characterSpacing: 1.2 })
     doc.restore()
 
     const sig2Label = template.signatoryTitle2 || 'Mengetahui'
@@ -409,9 +414,9 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
       }
     }
 
-    doc.fillColor('#172327').font('Times-Bold').fontSize(16).text(sig2Name, 55, sigBoxY + 88, { width: 210, align: 'center', lineBreak: false })
+    doc.fillColor('#172327').font('Times-Bold').fontSize(16).text(sig2Name, 55, sigBoxY + 88, { width: 210, align: 'center' })
     doc.moveTo(75, sigBoxY + 110).lineTo(245, sigBoxY + 110).lineWidth(1).strokeColor('#cbd5e1').stroke()
-    doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(9.5).text(sig2Label, 55, sigBoxY + 115, { width: 210, align: 'center', lineBreak: false })
+    doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(9.5).text(sig2Label, 55, sigBoxY + 115, { width: 210, align: 'center' })
   } else {
     const sealCY = sigBoxY + 38
     drawOfficialSeal(doc, 155, sealCY, accentColor, 'lg')
@@ -420,11 +425,11 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
     doc.fillColor('#64748b')
       .fontSize(8.5)
       .font('Helvetica-Bold')
-      .text('NO. SERTIFIKAT', 250, sealCY + 32, { width: 342, align: 'center', characterSpacing: 1.5, lineBreak: false })
+      .text('NO. SERTIFIKAT', 250, sealCY + 32, { width: 342, align: 'center', characterSpacing: 1.5 })
     doc.fillColor('#1e293b')
       .fontSize(10)
       .font('Helvetica')
-      .text(certNumber, 250, sealCY + 46, { width: 342, align: 'center', characterSpacing: 1.2, lineBreak: false })
+      .text(certNumber, 250, sealCY + 46, { width: 342, align: 'center', characterSpacing: 1.2 })
     doc.restore()
   }
 
@@ -443,9 +448,9 @@ function renderCertificatePage(doc: PDFKit.PDFDocument, template: TemplatePayloa
     }
   }
 
-  doc.fillColor('#172327').font('Times-Bold').fontSize(16).text(sig1Name, 577, sigBoxY + 88, { width: 210, align: 'center', lineBreak: false })
+  doc.fillColor('#172327').font('Times-Bold').fontSize(16).text(sig1Name, 577, sigBoxY + 88, { width: 210, align: 'center' })
   doc.moveTo(597, sigBoxY + 110).lineTo(767, sigBoxY + 110).lineWidth(1).strokeColor('#cbd5e1').stroke()
-  doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(9.5).text(sig1Label, 577, sigBoxY + 115, { width: 210, align: 'center', lineBreak: false })
+  doc.fillColor('#64748b').font('Helvetica-Bold').fontSize(9.5).text(sig1Label, 577, sigBoxY + 115, { width: 210, align: 'center' })
 }
 
 function generateSinglePDFBuffer(template: TemplatePayload, recipient: Record<string, unknown>): Promise<Buffer> {
